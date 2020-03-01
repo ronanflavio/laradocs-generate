@@ -28,10 +28,14 @@ class LaradocsGenerateServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         $this->loadViewsFrom(__DIR__.'/../resource/views', 'laradocs-generate');
+
         $this->publishes([
-            __DIR__.'/../resource/views' => resource_path('views/ronanflavio/laradocs-generate/docs'),
             __DIR__.'/../config/docs.php' => config_path('docs.php'),
-        ]);
+        ], 'laradocs-config');
+
+        $this->publishes([
+            __DIR__.'/../resource/views' => resource_path('views'),
+        ], 'laradocs-views');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
