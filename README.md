@@ -6,6 +6,13 @@ PHP 7.2 and Laravel 6.x or higher are required.
 composer require --dev ronanflavio/laradocs-generate
 ```
 
+After updating composer, add the service provider to the `providers` array in `config/app.php`
+
+```
+Ronanflavio\LaradocsGenerate\LaradocsGenerateServiceProvider::class,
+```
+
+
 ### Publishing
 
 Publish the config file by running:
