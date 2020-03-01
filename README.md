@@ -24,6 +24,6 @@ php artisan vendor:publish --provider="Ronanflavio\LaradocsGenerate\LaradocsGene
 
 This will create the `docs.blade.php` file in your `resource/views` directory.
 
-###License
+### License
 
 The Laradocs Generate is free software licensed under the MIT license.
