@@ -3,7 +3,7 @@
 PHP 7.2 and Laravel 6.x or higher are required.
 
 ```shell script
-composer require --dev ronanflavio\laradocs-generate
+composer require --dev ronanflavio/laradocs-generate
 ```
 
 ### Publishing
