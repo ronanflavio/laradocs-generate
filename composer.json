@@ -1,0 +1,25 @@
+{
+    "name": "ronanflavio/laradocs-generate",
+    "description": "A package to create a simple API docs from your Laravel application",
+    "keywords": ["laravel", "docs", "generate", "api"],
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ronan Flávio",
+            "email": "ronan.flavio@hotmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ronanflavio\\LaradocsGenerate\\": "src/"
+        },
+        "classmap": [
+            "src"
+        ]
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.2"
+    }
+}
