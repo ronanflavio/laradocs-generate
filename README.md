@@ -12,7 +12,22 @@ After updating composer, add the service provider to the `providers` array in `c
 Ronanflavio\LaradocsGenerate\LaradocsGenerateServiceProvider::class,
 ```
 
-### Documenting
+### Generating docs
+
+To generate docs simply run the command:
+
+```shell script
+php artisan code:generate
+```
+
+This command will create the `routes.json` file into your `resource` folder. The file will be used to provide data to render the view. 
+You may want to ignore the `routes.json` file into your `.gitignore`.
+
+Access your app host with `/docs` URI to see the docs page:
+
+E.g.: `http://127.0.0.1:8000/docs`
+
+### Writing docs
 
 Tha main goal of this package is to indicate which specifically is the URI parameters, the request body parameters and what is coming within the response.
 
