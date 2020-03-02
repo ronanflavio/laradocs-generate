@@ -21,7 +21,7 @@ Ronanflavio\LaradocsGenerate\LaradocsGenerateServiceProvider::class,
 To generate docs simply run the command:
 
 ```shell script
-php artisan code:generate
+php artisan docs:generate
 ```
 
 This command will create the `routes.json` file into your `resource` folder. The file will be used to provide data to render the view. 
