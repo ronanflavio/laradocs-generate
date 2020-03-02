@@ -32,7 +32,7 @@ class DocsGenerate extends Command
      *
      * @var string
      */
-    protected $description = 'Gera documentação API da aplicação';
+    protected $description = 'Generates the API docs of the application';
 
     /**
      * Create a new command instance.
@@ -53,32 +53,32 @@ class DocsGenerate extends Command
      */
     public function handle()
     {
-        $rotas = $this->getRoutes();
-        $rotas = $this->filterRoutes($rotas);
-        $rotas = $this->setRoutes($rotas);
+        $routes = $this->getRoutes();
+        $routes = $this->filterRoutes($routes);
+        $routes = $this->setRoutes($routes);
 
         file_put_contents(
             $this->jsonFile,
-            \GuzzleHttp\json_encode($rotas)
+            \GuzzleHttp\json_encode($routes)
         );
 
         $this->info('The documentation has been generated successfully.');
     }
 
-    protected function setRoutes(array $rotas)
+    protected function setRoutes(array $routes)
     {
-        foreach ($rotas as $key => &$rota) {
-            $action = explode('@', $rota->action);
+        foreach ($routes as $key => &$route) {
+            $action = explode('@', $route->action);
             if (sizeof($action) == 2) {
                 $reflector = new \ReflectionClass($action[0]);
-                $rota->method = $this->setMethod($rota->method);
-                $rota->docs = $this->setDocs($reflector, $action);
-                $rota->group = $this->setGroups($reflector);
-                $rota->headers = $this->setHeaders($rota);
+                $route->method = $this->setMethod($route->method);
+                $route->docs = $this->setDocs($reflector, $action);
+                $route->group = $this->setGroups($reflector);
+                $route->headers = $this->setHeaders($route);
             }
         }
 
-        return $rotas;
+        return $routes;
     }
 
     protected function setMethod(string $method)
@@ -92,9 +92,9 @@ class DocsGenerate extends Command
         return $method;
     }
 
-    protected function setHeaders($rota)
+    protected function setHeaders($route)
     {
-        $middleware = explode(',', $rota->middleware);
+        $middleware = explode(',', $route->middleware);
 
         foreach ($middleware as $m) {
             if ($m == 'auth:api') {
@@ -127,51 +127,51 @@ class DocsGenerate extends Command
         return $group;
     }
 
-    protected function filterRoutes(array $rotas)
+    protected function filterRoutes(array $routes)
     {
         $config = config('docs');
 
-        foreach ($rotas as $key => $rota) {
+        foreach ($routes as $key => $route) {
 
             if (!empty($config['excluded'])) {
                 foreach ($config['excluded'] as $excluded) {
                     /** If has asterisk, it must consider the substring value */
                     if (strpos($excluded, '*') !== false) {
-                        if (strpos($rota->uri, str_replace('*', '', $excluded)) !== false) {
-                            unset($rotas[$key]);
+                        if (strpos($route->uri, str_replace('*', '', $excluded)) !== false) {
+                            unset($routes[$key]);
                         }
                     } else {
-                        if ($rota->uri == $excluded) {
-                            unset($rotas[$key]);
+                        if ($route->uri == $excluded) {
+                            unset($routes[$key]);
                         }
                     }
                 }
             }
         }
 
-        return $rotas;
+        return $routes;
     }
 
     protected function setDtos($docs)
     {
-        $resultado = [];
+        $result = [];
 
         foreach ($docs as $doc) {
             if (strpos($doc, '@request') !== false) {
                 $class = explode('@request ', $doc)[1];
-                $resultado['request'] = $this->setProperties(trim($class));
+                $result['request'] = $this->setProperties(trim($class));
             } elseif (strpos($doc, '@response') !== false) {
                 $class = explode('@response ', $doc)[1];
-                $resultado['response'] = $this->setProperties(trim($class));
+                $result['response'] = $this->setProperties(trim($class));
             } elseif (strpos($doc, '@param') !== false) {
                 $class = explode('@param ', $doc)[1];
-                $resultado['params'][] = $this->setProperties(trim($class));
+                $result['params'][] = $this->setProperties(trim($class));
             } else {
-                $resultado['description'] = trim($doc);
+                $result['description'] = trim($doc);
             }
         }
 
-        return $resultado;
+        return $result;
     }
 
     protected function setProperties(string $class)
@@ -197,7 +197,7 @@ class DocsGenerate extends Command
         ];
     }
 
-    protected function setRequestResponse($properties)
+    protected function setRequestResponse(array $properties)
     {
         $obj = [];
         /** @var \ReflectionProperty $property */
@@ -209,10 +209,10 @@ class DocsGenerate extends Command
             /** Iterating list of PHPDocs for each attribute of the class */
             foreach ($docs[0] as $doc) {
                 if (strpos($doc, '@var') !== false) {
-                    /** Busca qual o tipo da variável */
+                    /** Find which is the var type */
                     $type = explode('@var ', $doc)[1];
                 } elseif (strpos($doc, '@example') !== false) {
-                    /** Busca o exemplo de preenchimento do campo */
+                    /** Find the attribute example */
                     $example = explode('@example ', $doc)[1];
                 }
             }
@@ -222,14 +222,37 @@ class DocsGenerate extends Command
                 'example' => trim($example),
                 'name' => $property->getName()
             ];
-            /** If the attribute is a class, find the attributes of that class */
-            if (class_exists($type)) {
-                $prop['attributes'] = $this->setProperties($type);
+
+            $attributesFromClass = $this->classNameCheck($type);
+            if (!empty($attributesFromClass)) {
+                $prop['attributes'] = $attributesFromClass;
             }
+
             $obj[] = $prop;
         }
 
         return $obj;
+    }
+
+    protected function classNameCheck(string $type)
+    {
+        $type = trim($type);
+
+        $attributes = [];
+        /** If the attribute is a class, find the attributes of that class */
+        if (class_exists(trim($type))) {
+            $attributes = $this->setProperties($type);
+        } else {
+            /** Check if string starts with slash and remove, if it is the case */
+            if ($type[0] === '\\') {
+                $type = substr($type, 1);
+                if (class_exists($type)) {
+                    $attributes = $this->setProperties($type);
+                }
+            }
+        }
+
+        return $attributes;
     }
 
     protected function getRoutes()
