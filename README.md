@@ -1,3 +1,7 @@
+### Live preview
+
+[Click here](http://laradocs.ronanflavio.com.br/) to check the output result.
+
 ### Installation
 
 PHP 7.2 and Laravel 6.x or higher are required.
